@@ -5,3 +5,7 @@ Avtorja:
 * Matija Pretnar
 
 Vzorčna seminarska naloga pri predmetu *Podatkovne baze 1*
+
+## Opis
+
+TODO: napiši opis projekta!
