@@ -8,4 +8,4 @@ Vzorčna seminarska naloga pri predmetu *Podatkovne baze 1*
 
 ## Opis
 
-TODO: napiši opis projekta!
+V bazo bomo zbrali najboljše filme, igralce in režiserje.
