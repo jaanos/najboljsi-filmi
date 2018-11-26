@@ -1,2 +1,7 @@
-# najboljsi-filmi
-Vzorčna seminarska naloga pri predmetu Podatkovne baze 1
+# Baza najboljših filmov
+
+Avtorja:
+* Janoš Vidali
+* Matija Pretnar
+
+Vzorčna seminarska naloga pri predmetu *Podatkovne baze 1*
