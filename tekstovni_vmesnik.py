@@ -1,28 +1,15 @@
-import sqlite3
-
-conn = sqlite3.connect('filmi.db')
+import modeli
 
 def izpisi_podatke(id_filma):
-    poizvedba = '''
-        SELECT naslov, leto, dolzina, ocena FROM film WHERE id = ?
-    '''
-    cur = conn.cursor()
-    cur.execute(poizvedba, [id_filma])
-    rezultat = cur.fetchone()
-    if rezultat is None:
+    podatki_filma = modeli.poisci_podatke(id_filma)
+    if podatki_filma is None:
         print('Filma s tem IDjem ni')
     else:
-        naslov, leto, dolzina, ocena = rezultat
+        naslov, leto, dolzina, ocena, zanri = podatki_filma
         print('{} ({})'.format(naslov, leto))
         print('  dolžina: {} min'.format(dolzina))
         print('  ocena: {}/10'.format(ocena))
-
-        poizvedba_za_zanre = '''
-            SELECT zanr FROM zanr WHERE film = ?
-        '''
-        cur.execute(poizvedba_za_zanre, [id_filma])
-        zanri = cur.fetchall()
-        print('  žanri: {}'.format(', '.join(zanr[0] for zanr in zanri)))
+        print('  žanri: {}'.format(', '.join(zanri)))
 
 
 print('Dober dan! Jaz ti bom dajal podatke o filmih.')
