@@ -2,11 +2,17 @@ from dekoratorji import conn, cursor, commit
 
 @cursor
 def obstaja_baza(cur):
+    """
+    Vrne True, če baza že obstaja.
+    """
     cur.execute("SELECT COUNT(*) FROM sqlite_master")
     return cur.fetchone() != (0, )
 
 @cursor
 def pridobi_konstante(cur):
+    """
+    Nastavi konstanti IGRALEC in REZISER, če baza obstaja.
+    """
     global IGRALEC, REZISER
     if obstaja_baza():
         cur = conn.cursor()
@@ -45,6 +51,11 @@ def poisci_podatke(cur, id_filma):
 
 @commit
 def id_zanra(cur, zanr):
+    """
+    Vrne ID podanega žanra.
+
+    Če žanr še ne obstaja, ga doda v bazo.
+    """
     cur.execute("SELECT id FROM zanr WHERE naziv = ?", [zanr])
     vrstica = cur.fetchone()
     if vrstica is not None:
@@ -54,6 +65,11 @@ def id_zanra(cur, zanr):
 
 @commit
 def id_osebe(cur, oseba):
+    """
+    Vrne ID podane osebe.
+
+    Če oseba še ne obstaja, jo doda v bazo.
+    """
     cur.execute("SELECT id FROM oseba WHERE ime = ?", [oseba])
     vrstica = cur.fetchone()
     if vrstica is not None:
@@ -65,6 +81,9 @@ def id_osebe(cur, oseba):
 def dodaj_film(cur, id, naslov, dolzina, leto, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
+    """
+    V bazo doda film ter podatke o njegovih žanrih, igralcih in režiserjih.
+    """
     cur.execute("""
         INSERT INTO film (id, naslov, dolzina, leto, metascore,
                           glasovi, zasluzek, opis) VALUES
