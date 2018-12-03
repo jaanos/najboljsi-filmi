@@ -78,18 +78,18 @@ def id_osebe(cur, oseba):
     return cur.lastrowid
 
 @commit
-def dodaj_film(cur, id, naslov, dolzina, leto, metascore,
+def dodaj_film(cur, id, naslov, dolzina, leto, ocena, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
     """
     V bazo doda film ter podatke o njegovih žanrih, igralcih in režiserjih.
     """
     cur.execute("""
-        INSERT INTO film (id, naslov, dolzina, leto, metascore,
-                          glasovi, zasluzek, opis) VALUES
-                         (?, ?, ?, ?, ?, ?, ?, ?)
-    """, [id, naslov, dolzina, leto, metascore,
-          glasovi, zasluzek, opis])
+        INSERT INTO film (id, naslov, dolzina, leto, ocena,
+                          metascore, glasovi, zasluzek, opis)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, [id, naslov, dolzina, leto, ocena,
+          metascore, glasovi, zasluzek, opis])
     for zanr in zanri:
         cur.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
                     [id, id_zanra.nocommit(cur, zanr)])
