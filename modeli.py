@@ -130,7 +130,7 @@ def id_osebe(oseba, ustvari_ce_ne_obstaja=False):
         return None
 
 
-def dodaj_film(id, naslov, dolzina, leto, metascore,
+def dodaj_film(id, naslov, dolzina, leto, ocena, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
     """
@@ -138,11 +138,11 @@ def dodaj_film(id, naslov, dolzina, leto, metascore,
     """
     with conn:
         conn.execute("""
-            INSERT INTO film (id, naslov, dolzina, leto, metascore,
-                            glasovi, zasluzek, opis) VALUES
-                            (?, ?, ?, ?, ?, ?, ?, ?)
-        """, [id, naslov, dolzina, leto, metascore,
-            glasovi, zasluzek, opis])
+            INSERT INTO film (id, naslov, dolzina, leto, ocena,
+                            metascore, glasovi, zasluzek, opis)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, [id, naslov, dolzina, leto, ocena,
+            metascore, glasovi, zasluzek, opis])
         for zanr in zanri:
             conn.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
                         [id, id_zanra(zanr, True)])
