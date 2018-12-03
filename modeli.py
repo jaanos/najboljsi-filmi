@@ -1,16 +1,12 @@
-import sqlite3
+from dekoratorji import conn, cursor, commit
 
-conn = sqlite3.connect('filmi.db')
-conn.execute('PRAGMA foreign_keys = ON')
-
-IGRALEC = None
-REZISER = None
-
-def obstaja_baza():
-    cur = conn.execute("SELECT COUNT(*) FROM sqlite_master")
+@cursor
+def obstaja_baza(cur):
+    cur.execute("SELECT COUNT(*) FROM sqlite_master")
     return cur.fetchone() != (0, )
 
-def pridobi_konstante():
+@cursor
+def pridobi_konstante(cur):
     global IGRALEC, REZISER
     if obstaja_baza():
         cur = conn.cursor()
@@ -22,28 +18,8 @@ def pridobi_konstante():
 
 pridobi_konstante()
 
-def commit(fun):
-    """
-    Dekorator, ki ustvari kurzor, ga poda dekorirani funkciji,
-    in nato zapiše spremembe v bazo.
-
-    Originalna funkcija je na voljo pod atributom nocommit.
-    """
-    def funkcija(*largs, **kwargs):
-        cur = conn.cursor()
-        ret = fun(cur, *largs, **kwargs)
-        conn.commit()
-        cur.close()
-        return ret
-    funkcija.__doc__ = fun.__doc__
-    funkcija.__name__ = fun.__name__
-    funkcija.__qualname__ = fun.__qualname__
-    fun.__qualname__ += '.nocommit'
-    funkcija.nocommit = fun
-    return funkcija
-
-
-def poisci_podatke(id_filma):
+@cursor
+def poisci_podatke(cur, id_filma):
     '''
     Vrne podatke o filmu z danim IDjem
 
@@ -54,7 +30,6 @@ def poisci_podatke(id_filma):
     poizvedba = """
         SELECT naslov, leto, dolzina, ocena FROM film WHERE id = ?
     """
-    cur = conn.cursor()
     cur.execute(poizvedba, [id_filma])
     osnovni_podatki = cur.fetchone()
     if osnovni_podatki is None:
