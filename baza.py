@@ -1,5 +1,5 @@
 import csv
-from modeli import conn, commit
+from modeli import commit, obstaja_baza, pridobi_konstante
 
 @commit
 def pobrisi_tabele(cur):
@@ -159,6 +159,6 @@ def ustvari_bazo_ce_ne_obstaja():
     """
     Ustvari bazo, če ta še ne obstaja.
     """
-    cur = conn.execute("SELECT COUNT(*) FROM sqlite_master")
-    if cur.fetchone() == (0, ):
+    if not obstaja_baza():
         ustvari_bazo()
+        pridobi_konstante()

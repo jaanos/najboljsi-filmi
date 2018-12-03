@@ -3,13 +3,24 @@ import sqlite3
 conn = sqlite3.connect('filmi.db')
 conn.execute('PRAGMA foreign_keys = ON')
 
-cur = conn.cursor()
-cur.execute("SELECT id FROM vloga WHERE naziv = 'igralec'")
-IGRALEC, = cur.fetchone()
-cur.execute("SELECT id FROM vloga WHERE naziv = 'reziser'")
-REZISER, = cur.fetchone()
-cur.close()
-del cur
+IGRALEC = None
+REZISER = None
+
+def obstaja_baza():
+    cur = conn.execute("SELECT COUNT(*) FROM sqlite_master")
+    return cur.fetchone() != (0, )
+
+def pridobi_konstante():
+    global IGRALEC, REZISER
+    if obstaja_baza():
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM vloga WHERE naziv = 'igralec'")
+        IGRALEC, = cur.fetchone()
+        cur.execute("SELECT id FROM vloga WHERE naziv = 'reziser'")
+        REZISER, = cur.fetchone()
+        cur.close()
+
+pridobi_konstante()
 
 def commit(fun):
     """
