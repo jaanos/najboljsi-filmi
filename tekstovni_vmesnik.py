@@ -1,4 +1,7 @@
 import modeli
+import baza
+
+baza.ustvari_bazo_ce_ne_obstaja()
 
 def izpisi_podatke(id_filma):
     podatki_filma = modeli.poisci_podatke(id_filma)
