@@ -101,6 +101,11 @@ def podatki_filma(id_filma):
 
 
 def id_zanra(zanr, ustvari_ce_ne_obstaja=False):
+    """
+    Vrne ID podanega žanra.
+
+    Če žanr še ne obstaja, ga doda v bazo.
+    """
     vrstica = conn.execute("SELECT id FROM zanr WHERE naziv = ?", [zanr]).fetchone()
     if vrstica is not None:
         return vrstica[0]
@@ -111,6 +116,11 @@ def id_zanra(zanr, ustvari_ce_ne_obstaja=False):
 
 
 def id_osebe(oseba, ustvari_ce_ne_obstaja=False):
+    """
+    Vrne ID podane osebe.
+
+    Če oseba še ne obstaja, jo doda v bazo.
+    """
     vrstica = conn.execute("SELECT id FROM oseba WHERE ime = ?", [oseba]).fetchone()
     if vrstica is not None:
         return vrstica[0]
@@ -123,6 +133,9 @@ def id_osebe(oseba, ustvari_ce_ne_obstaja=False):
 def dodaj_film(id, naslov, dolzina, leto, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
+    """
+    V bazo doda film ter podatke o njegovih žanrih, igralcih in režiserjih.
+    """
     with conn:
         conn.execute("""
             INSERT INTO film (id, naslov, dolzina, leto, metascore,
