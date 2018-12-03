@@ -15,12 +15,10 @@ def pridobi_konstante(cur):
     """
     global IGRALEC, REZISER
     if obstaja_baza():
-        cur = conn.cursor()
         cur.execute("SELECT id FROM vloga WHERE naziv = 'igralec'")
         IGRALEC, = cur.fetchone()
         cur.execute("SELECT id FROM vloga WHERE naziv = 'reziser'")
         REZISER, = cur.fetchone()
-        cur.close()
 
 pridobi_konstante()
 
