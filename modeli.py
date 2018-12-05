@@ -23,7 +23,7 @@ def mozne_vloge():
 
 def poisci_filme(niz):
     """
-    Funkcija, ki vrne vse filme, katerih naslov vsebuje dani niz.
+    Funkcija, ki vrne šifre vseh filmov, katerih naslov vsebuje dani niz.
 
     >>> poisci_filme('potter')
     [241527, 295297, 304141, 330373, 373889, 417741, 926084, 1201607]
@@ -34,10 +34,7 @@ def poisci_filme(niz):
         WHERE naslov LIKE ?
         ORDER BY leto
     """
-    idji_filmov = []
-    for (id_filma,) in conn.execute(poizvedba, ['%' + niz + '%']):
-        idji_filmov.append(id_filma)
-    return idji_filmov
+    return [id_filma for (id_filma,) in conn.execute(poizvedba, ['%' + niz + '%'])]
 
 
 def podatki_filmov(idji_filmov):
@@ -51,7 +48,7 @@ def podatki_filmov(idji_filmov):
         SELECT id, naslov, leto
         FROM film
         WHERE id IN ({})
-    """.format(', '.join('?' for _ in range(len(idji_filmov))))
+    """.format(', '.join(len(idji_filmov) * ['?']))
     return conn.execute(poizvedba, idji_filmov).fetchall()
 
 

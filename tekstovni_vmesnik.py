@@ -80,10 +80,10 @@ def prikazi_podatke_filma():
         print('Noben film ne ustreza iskalnemu nizu.')
     else:
         naslov, leto, dolzina, ocena, zanri, vloge = modeli.podatki_filma(id_filma)
-        reziserji = modeli.podatki_oseb([id_osebe for id_osebe, vloga in vloge if vloga == 'reziser'])
-        imena_reziserjev = [ime for _, ime in reziserji]
-        igralci = modeli.podatki_oseb([id_osebe for id_osebe, vloga in vloge if vloga == 'igralec'])
-        imena_igralcev = [ime for _, ime in igralci]
+        reziserji = modeli.podatki_oseb([id_osebe for (id_osebe, vloga) in vloge if vloga == 'reziser'])
+        imena_reziserjev = [ime for (_, ime) in reziserji]
+        igralci = modeli.podatki_oseb([id_osebe for (id_osebe, vloga) in vloge if vloga == 'igralec'])
+        imena_igralcev = [ime for (_, ime) in igralci]
 
         print('{} ({})'.format(naslov, leto))
         print('  dolžina: {} min'.format(dolzina))
