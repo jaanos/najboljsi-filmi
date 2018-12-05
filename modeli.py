@@ -1,6 +1,8 @@
+import baza
 import sqlite3
 
 conn = sqlite3.connect('filmi.db')
+baza.ustvari_bazo_ce_ne_obstaja(conn)
 conn.execute('PRAGMA foreign_keys = ON')
 
 
@@ -17,7 +19,6 @@ def mozne_vloge():
         ORDER BY naziv
     """
     return conn.execute(poizvedba).fetchall()
-
 
 
 def poisci_filme(niz):
@@ -154,6 +155,7 @@ def podatki_osebe(id_osebe):
         """
         vloge = conn.execute(poizvedba_za_vloge, [id_osebe]).fetchall()
         return ime, vloge
+
 
 def dodaj_vlogo(id_osebe, id_filma, id_vloge):
     poizvedba = """
