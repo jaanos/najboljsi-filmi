@@ -123,6 +123,14 @@ def dodaj_vlogo():
     modeli.dodaj_vlogo(id_osebe, id_filma, id_vloge)
     print('Vloga je uspešno dodana.')
 
+def prikazi_najboljse_filme_desetletja():
+    # TODO: preveri veljavnost vnosa števila
+    leto = int(input('Vnesite leto iz želenega desetletja > '))
+    desetletje, najboljsi_filmi = modeli.najboljsi_filmi_desetletja(leto)
+
+    print('V obdobju {} – {} so bili najboljši filmi:'.format(desetletje, desetletje + 9))
+    for i, (naslov, leto, ocena) in enumerate(najboljsi_filmi, 1):
+        print('{}. {} ({}), {}/10'.format(i, naslov, leto, ocena))
 
 def pokazi_moznosti():
     print(50 * '-')
@@ -130,6 +138,7 @@ def pokazi_moznosti():
         'prikaži podatke filma',
         'prikaži podatke osebe',
         'dodaj vlogo osebe v filmu',
+        'prikaži najboljše filme posameznega desetletja',
         'izhod',
     ])
     if izbira == 0:
@@ -139,8 +148,11 @@ def pokazi_moznosti():
     elif izbira == 2:
         dodaj_vlogo()
     elif izbira == 3:
+        prikazi_najboljse_filme_desetletja()
+    elif izbira == 4:
         print('Nasvidenje!')
         exit()
+        
 
 
 def main():

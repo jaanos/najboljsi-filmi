@@ -162,3 +162,16 @@ def dodaj_vlogo(id_osebe, id_filma, id_vloge):
     """
     with conn:
         conn.execute(poizvedba, [id_osebe, id_filma, id_vloge])
+
+
+def najboljsi_filmi_desetletja(leto):
+    desetletje = 10 * (leto // 10)
+    poizvedba = """
+        SELECT naslov, leto, ocena
+        FROM film
+        WHERE leto BETWEEN ? AND ?
+        ORDER BY ocena DESC
+        LIMIT 10
+    """
+    najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9])
+    return desetletje, najboljsi_filmi
