@@ -3,6 +3,7 @@ import modeli
 
 MAX_REZULTATOV_ISKANJA = 15
 
+
 def izberi_moznost(moznosti):
     """
     Funkcija, ki izpiše seznam možnosti in vrne indeks izbrane možnosti.
@@ -14,7 +15,7 @@ def izberi_moznost(moznosti):
     1) jabolko
     2) hruška
     3) stol
-    Vnesite izbiro> 2
+    Vnesite izbiro > 2
     1
     >>> izberi_moznost([])
     >>> izberi_moznost(['jabolko'])
@@ -31,7 +32,7 @@ def izberi_moznost(moznosti):
 
         st_moznosti = len(moznosti)
         while True:
-            izbira = input('Vnesite izbiro> ')
+            izbira = input('Vnesite izbiro > ')
             if not izbira.isdigit():
                 print('NAPAKA: vnesti morate število')
             else:
@@ -61,6 +62,7 @@ def izberi_osebo():
     ]
     izbira = izberi_moznost(moznosti)
     return None if izbira is None else idji_oseb[izbira]
+
 
 def izberi_vlogo():
     vloge = modeli.mozne_vloge()
