@@ -1,58 +1,75 @@
+import baza
 import sqlite3
 
 conn = sqlite3.connect('filmi.db')
+baza.ustvari_bazo_ce_ne_obstaja(conn)
 conn.execute('PRAGMA foreign_keys = ON')
 
-IGRALEC = None
-REZISER = None
 
-def obstaja_baza():
-    cur = conn.execute("SELECT COUNT(*) FROM sqlite_master")
-    return cur.fetchone() != (0, )
-
-def pridobi_konstante():
-    global IGRALEC, REZISER
-    if obstaja_baza():
-        cur = conn.cursor()
-        cur.execute("SELECT id FROM vloga WHERE naziv = 'igralec'")
-        IGRALEC, = cur.fetchone()
-        cur.execute("SELECT id FROM vloga WHERE naziv = 'reziser'")
-        REZISER, = cur.fetchone()
-        cur.close()
-
-pridobi_konstante()
-
-def commit(fun):
+def mozne_vloge():
     """
-    Dekorator, ki ustvari kurzor, ga poda dekorirani funkciji,
-    in nato zapiše spremembe v bazo.
+    Funkcija, ki vrne vse možne vloge.
 
-    Originalna funkcija je na voljo pod atributom nocommit.
+    >>> mozne_vloge()
+    [(1, 'igralec'), (2, 'reziser')]
     """
-    def funkcija(*largs, **kwargs):
-        cur = conn.cursor()
-        ret = fun(cur, *largs, **kwargs)
-        conn.commit()
-        cur.close()
-        return ret
-    funkcija.__doc__ = fun.__doc__
-    funkcija.__name__ = fun.__name__
-    funkcija.__qualname__ = fun.__qualname__
-    fun.__qualname__ += '.nocommit'
-    funkcija.nocommit = fun
-    return funkcija
-
-
-def poisci_podatke(id_filma):
-    '''
-    Vrne podatke o filmu z danim IDjem
-
-    Če film ne obstaja, vrne None, sicer vrne nabor:
-        naslov, leto, dolžina, ocena, žanri
-    pri čemer so žanri predstavljeni s seznamom nizov.
-    '''
     poizvedba = """
-        SELECT naslov, leto, dolzina, ocena FROM film WHERE id = ?
+        SELECT id, naziv
+        FROM vloga
+        ORDER BY naziv
+    """
+    return conn.execute(poizvedba).fetchall()
+
+for id, naziv in mozne_vloge():
+    if naziv == 'igralec':
+        IGRALEC = id
+    elif naziv == 'reziser':
+        REZISER = id
+
+
+def poisci_filme(niz):
+    """
+    Funkcija, ki vrne šifre vseh filmov, katerih naslov vsebuje dani niz.
+
+    >>> poisci_filme('potter')
+    [241527, 295297, 304141, 330373, 373889, 417741, 926084, 1201607]
+    """
+    poizvedba = """
+        SELECT id
+        FROM film
+        WHERE naslov LIKE ?
+        ORDER BY leto
+    """
+    return [id_filma for (id_filma,) in conn.execute(poizvedba, ['%' + niz + '%'])]
+
+
+def podatki_filmov(idji_filmov):
+    """
+    Vrne osnovne podatke vseh filmov z danimi IDji.
+
+    >>> podatki_filmov([79470, 71853])
+    [(71853, 'Monty Python and the Holy Grail', 1975), (79470, 'Life of Brian', 1979)]
+    """
+    poizvedba = """
+        SELECT id, naslov, leto
+        FROM film
+        WHERE id IN ({})
+    """.format(', '.join(len(idji_filmov) * ['?']))
+    return conn.execute(poizvedba, idji_filmov).fetchall()
+
+
+def podatki_filma(id_filma):
+    """
+    Vrne podatke o filmu z danim IDjem.
+
+    >>> podatki_filma(71853)
+    ('Monty Python and the Holy Grail', 1975, 91, 8.3, ['Comedy', 'Fantasy', 'Adventure'],
+     [(92, 'igralec'), (416, 'igralec'), (416, 'reziser'), (1037, 'igralec'), (1385, 'igralec'), (1402, 'reziser')])
+    """
+    poizvedba = """
+        SELECT naslov, leto, dolzina, ocena
+        FROM film
+        WHERE id = ?
     """
     cur = conn.cursor()
     cur.execute(poizvedba, [id_filma])
@@ -62,50 +79,152 @@ def poisci_podatke(id_filma):
     else:
         naslov, leto, dolzina, ocena = osnovni_podatki
         poizvedba_za_zanre = """
-            SELECT zanr.naziv FROM zanr JOIN pripada ON zanr.id = pripada.zanr WHERE pripada.film = ?
+            SELECT zanr.naziv
+            FROM zanr
+                 JOIN pripada ON zanr.id = pripada.zanr
+            WHERE pripada.film = ?
+            ORDER BY zanr.naziv
         """
         cur.execute(poizvedba_za_zanre, [id_filma])
         zanri = [vrstica[0] for vrstica in cur.fetchall()]
-        return naslov, leto, dolzina, ocena, zanri
+        poizvedba_za_vloge = """
+            SELECT nastopa.oseba, vloga.naziv
+            FROM vloga
+                 JOIN nastopa ON vloga.id = nastopa.vloga
+                 JOIN oseba ON oseba.id = nastopa.oseba
+            WHERE nastopa.film = ?
+            ORDER BY oseba.ime
+        """
+        cur.execute(poizvedba_za_vloge, [id_filma])
+        vloge = cur.fetchall()
+        return naslov, leto, dolzina, ocena, zanri, vloge
 
-@commit
-def id_zanra(cur, zanr):
-    cur.execute("SELECT id FROM zanr WHERE naziv = ?", [zanr])
-    vrstica = cur.fetchone()
+
+def id_zanra(zanr, ustvari_ce_ne_obstaja=False):
+    vrstica = conn.execute("SELECT id FROM zanr WHERE naziv = ?", [zanr]).fetchone()
     if vrstica is not None:
         return vrstica[0]
-    cur.execute("INSERT INTO zanr (naziv) VALUES (?)", [zanr])
-    return cur.lastrowid
+    elif ustvari_ce_ne_obstaja:
+        return conn.execute("INSERT INTO zanr (naziv) VALUES (?)", [zanr]).lastrowid
+    else:
+        return None
 
-@commit
-def id_osebe(cur, oseba):
-    cur.execute("SELECT id FROM oseba WHERE ime = ?", [oseba])
-    vrstica = cur.fetchone()
+
+def id_osebe(oseba, ustvari_ce_ne_obstaja=False):
+    vrstica = conn.execute("SELECT id FROM oseba WHERE ime = ?", [oseba]).fetchone()
     if vrstica is not None:
         return vrstica[0]
-    cur.execute("INSERT INTO oseba (ime) VALUES (?)", [oseba])
-    return cur.lastrowid
+    elif ustvari_ce_ne_obstaja:
+        return conn.execute("INSERT INTO oseba (ime) VALUES (?)", [oseba]).lastrowid
+    else:
+        return None
 
-@commit
-def dodaj_film(cur, id, naslov, dolzina, leto, metascore,
+
+def dodaj_film(id, naslov, dolzina, leto, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
-    cur.execute("""
-        INSERT INTO film (id, naslov, dolzina, leto, metascore,
-                          glasovi, zasluzek, opis) VALUES
-                         (?, ?, ?, ?, ?, ?, ?, ?)
-    """, [id, naslov, dolzina, leto, metascore,
-          glasovi, zasluzek, opis])
-    for zanr in zanri:
-        cur.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
-                    [id, id_zanra.nocommit(cur, zanr)])
-    for igralec in igralci:
-        cur.execute("""
-            INSERT INTO nastopa (film, oseba, vloga)
-            VALUES (?, ?, ?)
-        """, (id, id_osebe.nocommit(cur, igralec), IGRALEC))
-    for reziser in reziserji:
-        cur.execute("""
-            INSERT INTO nastopa (film, oseba, vloga)
-            VALUES (?, ?, ?)
-        """, (id, id_osebe.nocommit(cur, reziser), REZISER))
+    with conn:
+        conn.execute("""
+            INSERT INTO film (id, naslov, dolzina, leto, metascore,
+                            glasovi, zasluzek, opis) VALUES
+                            (?, ?, ?, ?, ?, ?, ?, ?)
+        """, [id, naslov, dolzina, leto, metascore,
+            glasovi, zasluzek, opis])
+        for zanr in zanri:
+            conn.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
+                        [id, id_zanra(zanr, True)])
+        for igralec in igralci:
+            conn.execute("""
+                INSERT INTO nastopa (film, oseba, vloga)
+                VALUES (?, ?, ?)
+            """, (id, id_osebe(igralec, True), IGRALEC))
+        for reziser in reziserji:
+            conn.execute("""
+                INSERT INTO nastopa (film, oseba, vloga)
+                VALUES (?, ?, ?)
+            """, (id, id_osebe(reziser, True), REZISER))
+
+def poisci_osebe(niz):
+    """
+    Funkcija, ki vrne IDje vseh oseb, katerih ime vsebuje dani niz.
+
+    >>> poisci_osebe('coen')
+    [1053, 1054]
+    """
+    poizvedba = """
+        SELECT id
+        FROM oseba
+        WHERE ime LIKE ?
+        ORDER BY ime
+    """
+    idji_oseb = []
+    for (id_osebe,) in conn.execute(poizvedba, ['%' + niz + '%']):
+        idji_oseb.append(id_osebe)
+    return idji_oseb
+
+
+def podatki_oseb(id_oseb):
+    """
+    Vrne osnovne podatke vseh oseb z danimi IDji.
+
+    >>> podatki_oseb([1053, 1054])
+    [(1053, 'Ethan Coen'), (1054, 'Joel Coen')]
+    """
+    poizvedba = """
+        SELECT id, ime
+        FROM oseba
+        WHERE id IN ({})
+    """.format(', '.join('?' for _ in range(len(id_oseb))))
+    return conn.execute(poizvedba, id_oseb).fetchall()
+
+
+def podatki_osebe(id_osebe):
+    """
+    Vrne podatke o osebi z danim IDjem.
+
+    >>> podatki_osebe(92)
+    ('John Cleese', [(71853, 'igralec'), (79470, 'igralec'), (85959, 'igralec'), (95159, 'igralec'), (95159, 'reziser')])
+    """
+    poizvedba = """
+        SELECT ime FROM oseba WHERE id = ?
+    """
+    cur = conn.cursor()
+    cur.execute(poizvedba, [id_osebe])
+    osnovni_podatki = cur.fetchone()
+    if osnovni_podatki is None:
+        return None
+    else:
+        ime, = osnovni_podatki
+        poizvedba_za_vloge = """
+            SELECT nastopa.film, vloga.naziv
+            FROM vloga
+                 JOIN nastopa ON vloga.id = nastopa.vloga
+                 JOIN film ON film.id = nastopa.film
+            WHERE nastopa.oseba = ?
+            ORDER BY film.leto
+        """
+        vloge = conn.execute(poizvedba_za_vloge, [id_osebe]).fetchall()
+        return ime, vloge
+
+
+def dodaj_vlogo(id_osebe, id_filma, id_vloge):
+    poizvedba = """
+        INSERT INTO nastopa
+        (oseba, film, vloga)
+        VALUES (?, ?, ?)
+    """
+    with conn:
+        conn.execute(poizvedba, [id_osebe, id_filma, id_vloge])
+
+
+def najboljsi_filmi_desetletja(leto):
+    desetletje = 10 * (leto // 10)
+    poizvedba = """
+        SELECT naslov, leto, ocena
+        FROM film
+        WHERE leto BETWEEN ? AND ?
+        ORDER BY ocena DESC
+        LIMIT 10
+    """
+    najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9])
+    return desetletje, najboljsi_filmi
