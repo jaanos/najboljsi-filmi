@@ -132,6 +132,39 @@ def prikazi_najboljse_filme_desetletja():
     for i, (naslov, leto, ocena) in enumerate(najboljsi_filmi, 1):
         print('{}. {} ({}), {}/10'.format(i, naslov, leto, ocena))
 
+def dodaj_film():
+    naslov = input('Vnesite naslov filma > ')
+    dolzina = int(input('Vnesite dolžino filma > '))
+    leto = int(input('Vnesite leto filma > '))
+    ocena = int(input('Vnesite oceno filma > '))
+    metascore = float(input('Vnesite metascore filma > '))
+    glasovi = int(input('Vnesite število glasov za film > '))
+    zasluzek = int(input('Vnesite zaslužek filma > '))
+    opis = input('Vnesite opis filma > ')
+    zanri = []
+    while True:
+        zanr = input('Vnesite žanr filma (prazno za konec) > ')
+        if zanr:
+            zanri.append(zanr)
+        else:
+            break
+    igralci = []
+    while True:
+        igralec = input('Vnesite igralca v filmu (prazno za konec) > ')
+        if igralec:
+            igralci.append(igralec)
+        else:
+            break
+    reziserji = []
+    while True:
+        reziser = input('Vnesite režiserja filma (prazno za konec) > ')
+        if reziser:
+            reziserji.append(reziser)
+        else:
+            break
+    modeli.dodaj_film(naslov, dolzina, leto, ocena, metascore,
+               glasovi, zasluzek, opis, zanri, igralci, reziserji)
+
 def pokazi_moznosti():
     print(50 * '-')
     izbira = izberi_moznost([
@@ -139,6 +172,7 @@ def pokazi_moznosti():
         'prikaži podatke osebe',
         'dodaj vlogo osebe v filmu',
         'prikaži najboljše filme posameznega desetletja',
+        'dodaj film',
         'izhod',
     ])
     if izbira == 0:
@@ -150,6 +184,8 @@ def pokazi_moznosti():
     elif izbira == 3:
         prikazi_najboljse_filme_desetletja()
     elif izbira == 4:
+        dodaj_film()
+    else:
         print('Nasvidenje!')
         exit()
         

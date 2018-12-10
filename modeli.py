@@ -130,19 +130,19 @@ def id_osebe(oseba, ustvari_ce_ne_obstaja=False):
         return None
 
 
-def dodaj_film(id, naslov, dolzina, leto, ocena, metascore,
+def dodaj_film(naslov, dolzina, leto, ocena, metascore,
                glasovi, zasluzek, opis, zanri=[], igralci=[],
                reziserji=[]):
     """
     V bazo doda film ter podatke o njegovih žanrih, igralcih in režiserjih.
     """
     with conn:
-        conn.execute("""
-            INSERT INTO film (id, naslov, dolzina, leto, ocena,
+        id = conn.execute("""
+            INSERT INTO film (naslov, dolzina, leto, ocena,
                             metascore, glasovi, zasluzek, opis)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, [id, naslov, dolzina, leto, ocena,
-            metascore, glasovi, zasluzek, opis])
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, [naslov, dolzina, leto, ocena,
+            metascore, glasovi, zasluzek, opis]).lastrowid
         for zanr in zanri:
             conn.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
                         [id, id_zanra(zanr, True)])
