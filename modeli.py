@@ -5,6 +5,25 @@ conn = sqlite3.connect('filmi.db')
 baza.ustvari_bazo_ce_ne_obstaja(conn)
 conn.execute('PRAGMA foreign_keys = ON')
 
+import time
+
+
+def stevilo_filmov():
+    poizvedba = """
+        SELECT COUNT(*)
+        FROM film
+    """
+    (st_filmov,) = conn.execute(poizvedba).fetchone()
+    return st_filmov
+
+def stevilo_oseb():
+    poizvedba = """
+        SELECT COUNT(*)
+        FROM oseba
+    """
+    (st_oseb,) = conn.execute(poizvedba).fetchone()
+    return st_oseb
+
 
 def mozne_vloge():
     """
@@ -239,5 +258,5 @@ def najboljsi_filmi_desetletja(leto):
         ORDER BY ocena DESC
         LIMIT 10
     """
-    najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9])
+    najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9]).fetchall()
     return desetletje, najboljsi_filmi
