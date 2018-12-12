@@ -1,9 +1,13 @@
+% rebase('osnova')
+
 % if filmi:
-    <h1>Najboljši filmi desetletja {{ desetletje }}–{{ desetletje + 9}} so:</h1>
+    <h1 class="title">
+        Najboljši filmi desetletja {{ desetletje }}–{{ desetletje + 9}} so:
+    </h1>
 
     <ol>
         % for naslov, leto, ocena in filmi:
-            <li>{{ naslov }} ({{ leto }}), <small>{{ ocena }} / 10</small></li>
+            <li><strong>{{ naslov }}</strong> ({{ leto }}), <small>{{ ocena }} / 10</small></li>
         % end
     </ol>
 % else:

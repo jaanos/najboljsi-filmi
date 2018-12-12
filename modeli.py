@@ -8,6 +8,19 @@ conn.execute('PRAGMA foreign_keys = ON')
 import time
 
 
+def desetletje_leta(leto):
+    return 10 * (leto // 10)
+
+
+def mozna_desetletja():
+    poizvedba = """
+        SELECT MIN(leto), MAX(leto)
+        FROM film
+    """
+    min_leto, max_leto = conn.execute(poizvedba).fetchone()
+    return list(range(desetletje_leta(min_leto), desetletje_leta(max_leto) + 1, 10))
+
+
 def stevilo_filmov():
     poizvedba = """
         SELECT COUNT(*)
@@ -250,7 +263,7 @@ def dodaj_vlogo(id_osebe, id_filma, id_vloge):
 
 
 def najboljsi_filmi_desetletja(leto):
-    desetletje = 10 * (leto // 10)
+    desetletje = desetletje_leta(leto)
     poizvedba = """
         SELECT naslov, leto, ocena
         FROM film
