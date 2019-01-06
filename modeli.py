@@ -177,17 +177,17 @@ def dodaj_film(naslov, dolzina, leto, ocena, metascore,
             metascore, glasovi, zasluzek, opis]).lastrowid
         for zanr in zanri:
             conn.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
-                        [id, id_zanra(zanr, True)])
+                        [id, zanr])
         for igralec in igralci:
             conn.execute("""
                 INSERT INTO nastopa (film, oseba, vloga)
                 VALUES (?, ?, ?)
-            """, (id, id_osebe(igralec, True), IGRALEC))
+            """, (id, igralec, IGRALEC))
         for reziser in reziserji:
             conn.execute("""
                 INSERT INTO nastopa (film, oseba, vloga)
                 VALUES (?, ?, ?)
-            """, (id, id_osebe(reziser, True), REZISER))
+            """, (id, reziser, REZISER))
 
 def poisci_osebe(niz):
     """

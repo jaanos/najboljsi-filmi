@@ -145,21 +145,21 @@ def dodaj_film():
     while True:
         zanr = input('Vnesite žanr filma (prazno za konec) > ')
         if zanr:
-            zanri.append(zanr)
+            zanri.append(modeli.id_zanra(zanr, True))
         else:
             break
     igralci = []
     while True:
         igralec = input('Vnesite igralca v filmu (prazno za konec) > ')
         if igralec:
-            igralci.append(igralec)
+            igralci.append(modeli.id_osebe(igralec, True))
         else:
             break
     reziserji = []
     while True:
         reziser = input('Vnesite režiserja filma (prazno za konec) > ')
         if reziser:
-            reziserji.append(reziser)
+            reziserji.append(modeli.id_osebe(reziser, True))
         else:
             break
     modeli.dodaj_film(naslov, dolzina, leto, ocena, metascore,
