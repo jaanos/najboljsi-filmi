@@ -17,7 +17,7 @@
   <footer class="footer">
     <div class="content has-text-centered">
       <p>
-        &copy; 2018 Matija Pretnar
+        &copy; 2018 Matija Pretnar, Janoš Vidali
       </p>
     </div>
   </footer>

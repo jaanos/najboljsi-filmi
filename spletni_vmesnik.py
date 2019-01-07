@@ -1,5 +1,5 @@
 import bottle
-from bottle import get, run, template
+from bottle import get, post, run, template, request, redirect
 import modeli
 
 
@@ -17,8 +17,9 @@ def glavna_stran():
         desetletja=desetletja
     )
 
-@get('/iskanje/<niz>/')
-def iskanje(niz):
+@get('/iskanje/')
+def iskanje():
+    niz = request.query.naslov
     idji_filmov = modeli.poisci_filme(niz)
     filmi = [(id, naslov, leto, '/film/{}/'.format(id)) for (id, naslov, leto) in modeli.podatki_filmov(idji_filmov)]
     return template(
@@ -53,5 +54,59 @@ def najboljsi_filmi_desetletja(desetletje=2010):
         desetletje=desetletje,
         filmi=najboljsi_filmi,
     )
+
+@get('/dodaj_film/')
+def dodaj_film():
+    zanri = modeli.seznam_zanrov()
+    osebe = modeli.seznam_oseb()
+    return template('dodaj_film',
+                    naslov="",
+                    dolzina="",
+                    leto="",
+                    ocena="",
+                    metascore="",
+                    glasovi="",
+                    zasluzek="",
+                    opis="",
+                    zanri=[],
+                    igralci=[],
+                    reziserji=[],
+                    vsi_zanri=zanri,
+                    vse_osebe=osebe,
+                    napaka=False)
+
+@post('/dodaj_film/')
+def dodajanje_filma():
+    try:
+        id = modeli.dodaj_film(naslov=request.forms.naslov,
+                               dolzina=request.forms.dolzina,
+                               leto=request.forms.leto,
+                               ocena=request.forms.ocena,
+                               metascore=request.forms.metascore,
+                               glasovi=request.forms.glasovi,
+                               zasluzek=request.forms.zasluzek,
+                               opis=request.forms.opis,
+                               zanri=request.forms.getall('zanri'),
+                               igralci=request.forms.getall('igralci'),
+                               reziserji=request.forms.getall('reziserji'))
+    except:
+        zanri = modeli.seznam_zanrov()
+        osebe = modeli.seznam_oseb()
+        return template('dodaj_film',
+                        naslov=request.forms.naslov,
+                        dolzina=request.forms.dolzina,
+                        leto=request.forms.leto,
+                        ocena=request.forms.ocena,
+                        metascore=request.forms.metascore,
+                        glasovi=request.forms.glasovi,
+                        zasluzek=request.forms.zasluzek,
+                        opis=request.forms.opis,
+                        zanri=request.forms.getall('zanri'),
+                        igralci=request.forms.getall('igralci'),
+                        reziserji=request.forms.getall('reziserji'),
+                        vsi_zanri=zanri,
+                        vse_osebe=osebe,
+                        napaka=True)
+    redirect('/film/{}/'.format(id))
 
 run(reloader=True, debug=True)

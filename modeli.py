@@ -188,6 +188,7 @@ def dodaj_film(naslov, dolzina, leto, ocena, metascore,
                 INSERT INTO nastopa (film, oseba, vloga)
                 VALUES (?, ?, ?)
             """, (id, reziser, REZISER))
+        return id
 
 def poisci_osebe(niz):
     """
@@ -261,7 +262,6 @@ def dodaj_vlogo(id_osebe, id_filma, id_vloge):
     with conn:
         conn.execute(poizvedba, [id_osebe, id_filma, id_vloge])
 
-
 def najboljsi_filmi_desetletja(leto):
     desetletje = desetletje_leta(leto)
     poizvedba = """
@@ -273,3 +273,17 @@ def najboljsi_filmi_desetletja(leto):
     """
     najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9]).fetchall()
     return desetletje, najboljsi_filmi
+
+def seznam_zanrov():
+    poizvedba = """
+        SELECT id, naziv FROM zanr
+        ORDER BY naziv
+    """
+    return conn.execute(poizvedba).fetchall()
+
+def seznam_oseb():
+    poizvedba = """
+        SELECT id, ime FROM oseba
+        ORDER BY ime
+    """
+    return conn.execute(poizvedba).fetchall()
