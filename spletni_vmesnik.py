@@ -1,10 +1,18 @@
 import bottle
 from bottle import get, post, run, template, request, redirect
 import modeli
+import hashlib
+
+SKRIVNOST = 'moja skrivnost'
+
+
+def prijavljen_uporabnik():
+    return request.get_cookie('prijavljen', secret=SKRIVNOST) == 'da'
 
 
 def url_filma(id):
     return '/film/{}/'.format(id)
+
 
 @get('/')
 def glavna_stran():
@@ -14,8 +22,10 @@ def glavna_stran():
     ]
     return template(
         'glavna_stran',
-        desetletja=desetletja
+        desetletja=desetletja,
+        prijavljen=prijavljen_uporabnik()
     )
+
 
 @get('/iskanje/')
 def iskanje():
@@ -27,6 +37,7 @@ def iskanje():
         niz=niz,
         filmi=filmi,
     )
+
 
 @get('/film/<id_filma:int>/')
 def podatki_filma(id_filma):
@@ -55,8 +66,11 @@ def najboljsi_filmi_desetletja(desetletje=2010):
         filmi=najboljsi_filmi,
     )
 
+
 @get('/dodaj_film/')
 def dodaj_film():
+    if not prijavljen_uporabnik():
+        raise bottle.HTTPError(401)
     zanri = modeli.seznam_zanrov()
     osebe = modeli.seznam_oseb()
     return template('dodaj_film',
@@ -75,8 +89,11 @@ def dodaj_film():
                     vse_osebe=osebe,
                     napaka=False)
 
+
 @post('/dodaj_film/')
 def dodajanje_filma():
+    if not prijavljen_uporabnik():
+        raise bottle.HTTPError(401)
     try:
         id = modeli.dodaj_film(naslov=request.forms.naslov,
                                dolzina=request.forms.dolzina,
@@ -108,5 +125,31 @@ def dodajanje_filma():
                         vse_osebe=osebe,
                         napaka=True)
     redirect('/film/{}/'.format(id))
+
+
+@post('/prijava/')
+def prijava():
+    uporabnisko_ime = request.forms.uporabnisko_ime
+    geslo = request.forms.geslo
+    if modeli.preveri_geslo(uporabnisko_ime, geslo):
+        bottle.response.set_cookie(
+            'prijavljen', 'da', secret=SKRIVNOST, path='/')
+        redirect('/')
+    else:
+        raise bottle.HTTPError(403, "BOOM!")
+
+
+@post('/registracija/')
+def registracija():
+    uporabnisko_ime = request.forms.uporabnisko_ime
+    geslo = request.forms.geslo
+    if modeli.ustvari_uporabnika(uporabnisko_ime, geslo):
+        bottle.response.set_cookie(
+            'prijavljen', 'da', secret=SKRIVNOST, path='/')
+        redirect('/')
+    else:
+        raise bottle.HTTPError(
+            403, "Uporabnik s tem uporabniškim imenom že obstaja!")
+
 
 run(reloader=True, debug=True)

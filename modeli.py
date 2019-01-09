@@ -1,11 +1,10 @@
+import hashlib
 import baza
 import sqlite3
 
 conn = sqlite3.connect('filmi.db')
 baza.ustvari_bazo_ce_ne_obstaja(conn)
 conn.execute('PRAGMA foreign_keys = ON')
-
-import time
 
 
 def desetletje_leta(leto):
@@ -29,6 +28,7 @@ def stevilo_filmov():
     (st_filmov,) = conn.execute(poizvedba).fetchone()
     return st_filmov
 
+
 def stevilo_oseb():
     poizvedba = """
         SELECT COUNT(*)
@@ -51,6 +51,7 @@ def mozne_vloge():
         ORDER BY naziv
     """
     return conn.execute(poizvedba).fetchall()
+
 
 for id, naziv in mozne_vloge():
     if naziv == 'igralec':
@@ -174,10 +175,10 @@ def dodaj_film(naslov, dolzina, leto, ocena, metascore,
                             metascore, glasovi, zasluzek, opis)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, [naslov, dolzina, leto, ocena,
-            metascore, glasovi, zasluzek, opis]).lastrowid
+              metascore, glasovi, zasluzek, opis]).lastrowid
         for zanr in zanri:
             conn.execute("INSERT INTO pripada (film, zanr) VALUES (?, ?)",
-                        [id, zanr])
+                         [id, zanr])
         for igralec in igralci:
             conn.execute("""
                 INSERT INTO nastopa (film, oseba, vloga)
@@ -189,6 +190,7 @@ def dodaj_film(naslov, dolzina, leto, ocena, metascore,
                 VALUES (?, ?, ?)
             """, (id, reziser, REZISER))
         return id
+
 
 def poisci_osebe(niz):
     """
@@ -262,6 +264,7 @@ def dodaj_vlogo(id_osebe, id_filma, id_vloge):
     with conn:
         conn.execute(poizvedba, [id_osebe, id_filma, id_vloge])
 
+
 def najboljsi_filmi_desetletja(leto):
     desetletje = desetletje_leta(leto)
     poizvedba = """
@@ -274,6 +277,7 @@ def najboljsi_filmi_desetletja(leto):
     najboljsi_filmi = conn.execute(poizvedba, [desetletje, desetletje + 9]).fetchall()
     return desetletje, najboljsi_filmi
 
+
 def seznam_zanrov():
     poizvedba = """
         SELECT id, naziv FROM zanr
@@ -281,9 +285,36 @@ def seznam_zanrov():
     """
     return conn.execute(poizvedba).fetchall()
 
+
 def seznam_oseb():
     poizvedba = """
         SELECT id, ime FROM oseba
         ORDER BY ime
     """
     return conn.execute(poizvedba).fetchall()
+
+
+def zakodiraj(geslo):
+    zakodirano_geslo = hashlib.sha512(geslo.encode()).hexdigest()
+    return zakodirano_geslo
+
+
+def preveri_geslo(uporabnisko_ime, geslo):
+    poizvedba = """
+        SELECT * FROM uporabniki
+        WHERE uporabnisko_ime = ? AND geslo = ?
+    """
+    uporabnik = conn.execute(
+        poizvedba, [uporabnisko_ime, zakodiraj(geslo)]).fetchone()
+    return uporabnik is not None
+
+
+def ustvari_uporabnika(uporabnisko_ime, geslo):
+    poizvedba = """
+        INSERT INTO uporabniki
+        (uporabnisko_ime, geslo)
+        VALUES (?, ?)
+    """
+    with conn:
+        conn.execute(poizvedba, [uporabnisko_ime, zakodiraj(geslo)]).fetchone()
+        return True

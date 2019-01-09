@@ -17,6 +17,19 @@
 % end
 </ul>
 
+% if get('prijavljen', False):
 <p>
 <a href="dodaj_film/">Dodaj film</a>
 </p>
+% else:
+<form action="prijava/" method="post">
+<input type="text" name="uporabnisko_ime" value="" />
+<input type="password" name="geslo" value="" />
+<input type="submit" value="Prijavi se">
+</form>
+<form action="registracija/" method="post">
+<input type="text" name="uporabnisko_ime" value="" />
+<input type="password" name="geslo" value="" />
+<input type="submit" value="Registriraj se">
+</form>
+% end

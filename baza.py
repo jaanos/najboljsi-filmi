@@ -63,6 +63,12 @@ def ustvari_tabele(conn):
             PRIMARY KEY (film, zanr)
         );
     """)
+    conn.execute("""
+        CREATE TABLE uporabniki (
+            uporabnisko_ime  TEXT PRIMARY KEY,
+            geslo TEXT
+        );
+    """)
 
 
 def uvozi_filme(conn):
