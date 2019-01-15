@@ -76,7 +76,7 @@ def uvozi_filme(conn):
     Uvozi podatke o filmih.
     """
     conn.execute("DELETE FROM film;")
-    with open('podatki/film.csv') as datoteka:
+    with open('podatki/film.csv', encoding="UTF-8") as datoteka:
         podatki = csv.reader(datoteka)
         stolpci = next(podatki)
         poizvedba = """
@@ -91,7 +91,7 @@ def uvozi_osebe(conn):
     Uvozi podatke o osebah.
     """
     conn.execute("DELETE FROM oseba;")
-    with open('podatki/oseba.csv') as datoteka:
+    with open('podatki/oseba.csv', encoding="UTF-8") as datoteka:
         podatki = csv.reader(datoteka)
         stolpci = next(podatki)
         poizvedba = """
@@ -108,7 +108,7 @@ def uvozi_vloge(conn):
     conn.execute("DELETE FROM nastopa;")
     conn.execute("DELETE FROM vloga;")
     vloge = {}
-    with open('podatki/vloge.csv') as datoteka:
+    with open('podatki/vloge.csv', encoding="UTF-8") as datoteka:
         podatki = csv.reader(datoteka)
         stolpci = next(podatki)
         v = stolpci.index('vloga')
@@ -132,7 +132,7 @@ def uvozi_zanre(conn):
     conn.execute("DELETE FROM pripada;")
     conn.execute("DELETE FROM zanr;")
     zanri = {}
-    with open('podatki/zanri.csv') as datoteka:
+    with open('podatki/zanri.csv', encoding="UTF-8") as datoteka:
         podatki = csv.reader(datoteka)
         stolpci = next(podatki)
         z = stolpci.index('zanr')
