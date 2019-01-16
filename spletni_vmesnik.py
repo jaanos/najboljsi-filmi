@@ -138,6 +138,10 @@ def prijava():
     else:
         raise bottle.HTTPError(403, "BOOM!")
 
+@get('/odjava/')
+def odjava():
+    bottle.response.set_cookie('prijavljen', '', path='/')
+    redirect('/')
 
 @post('/registracija/')
 def registracija():

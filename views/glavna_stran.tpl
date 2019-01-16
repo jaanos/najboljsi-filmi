@@ -15,13 +15,17 @@
         </a>
     </li>
 % end
+    % if get('prijavljen', False):
+    <li>
+        <a href="dodaj_film/">Dodaj film</a>
+    </li>
+    <li>
+        <a href="odjava/">Odjavi se</a>
+    </li>
+    % end
 </ul>
 
-% if get('prijavljen', False):
-<p>
-<a href="dodaj_film/">Dodaj film</a>
-</p>
-% else:
+% if not get('prijavljen', False):
 <form action="prijava/" method="post">
 <input type="text" name="uporabnisko_ime" value="" />
 <input type="password" name="geslo" value="" />
