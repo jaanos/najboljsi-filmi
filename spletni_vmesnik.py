@@ -155,5 +155,8 @@ def registracija():
         raise bottle.HTTPError(
             403, "Uporabnik s tem uporabniškim imenom že obstaja!")
 
+@get('/static/<filename>')
+def staticna_datoteka(filename):
+    return bottle.static_file(filename, root='static')
 
 run(reloader=True, debug=True)
