@@ -1,6 +1,7 @@
 import hashlib
 import baza
 import sqlite3
+import random
 
 conn = sqlite3.connect('filmi.db')
 baza.ustvari_bazo_ce_ne_obstaja(conn)
@@ -294,27 +295,34 @@ def seznam_oseb():
     return conn.execute(poizvedba).fetchall()
 
 
-def zakodiraj(geslo):
-    zakodirano_geslo = hashlib.sha512(geslo.encode()).hexdigest()
-    return zakodirano_geslo
+def zakodiraj(geslo, sol=None):
+    if sol is None:
+        sol = ''.join(chr(random.randint(65, 122)) for _ in range(16))
+    posoljeno_geslo = geslo + '$' + sol
+    zakodirano_geslo = hashlib.sha512(posoljeno_geslo.encode()).hexdigest()
+    return zakodirano_geslo, sol
 
 
 def preveri_geslo(uporabnisko_ime, geslo):
     poizvedba = """
-        SELECT * FROM uporabniki
-        WHERE uporabnisko_ime = ? AND geslo = ?
+        SELECT geslo, sol FROM uporabniki
+        WHERE uporabnisko_ime = ?
     """
-    uporabnik = conn.execute(
-        poizvedba, [uporabnisko_ime, zakodiraj(geslo)]).fetchone()
-    return uporabnik is not None
+    uporabnik = conn.execute(poizvedba, [uporabnisko_ime]).fetchone()
+    if uporabnik is None:
+        return False
+    shranjeno_geslo, sol = uporabnik
+    zakodirano_geslo, _ = zakodiraj(geslo, sol)
+    return shranjeno_geslo == zakodirano_geslo
 
 
 def ustvari_uporabnika(uporabnisko_ime, geslo):
     poizvedba = """
         INSERT INTO uporabniki
-        (uporabnisko_ime, geslo)
-        VALUES (?, ?)
+        (uporabnisko_ime, geslo, sol)
+        VALUES (?, ?, ?)
     """
     with conn:
-        conn.execute(poizvedba, [uporabnisko_ime, zakodiraj(geslo)]).fetchone()
+        zakodirano_geslo, sol = zakodiraj(geslo)
+        conn.execute(poizvedba, [uporabnisko_ime, zakodirano_geslo, sol]).fetchone()
         return True

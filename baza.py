@@ -66,7 +66,8 @@ def ustvari_tabele(conn):
     conn.execute("""
         CREATE TABLE uporabniki (
             uporabnisko_ime  TEXT PRIMARY KEY,
-            geslo TEXT
+            geslo TEXT,
+            sol TEXT
         );
     """)
 
