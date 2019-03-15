@@ -20,5 +20,6 @@ from filmiapp import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('f/<int:id>', views.film, name='film'),
+    path('new-film/', views.nov_film, name='nov_film'),
     path('admin/', admin.site.urls),
 ]

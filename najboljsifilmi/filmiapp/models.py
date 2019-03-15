@@ -1,7 +1,9 @@
 from django.db import models
+from django.forms import ModelForm
 
 class Oseba(models.Model):
     ime = models.CharField(max_length=200, help_text="Ime in priimek osebe.")
+    vloge = models.ManyToManyField('Vloga', through='Nastopanje', related_name='osebe')
 
     class Meta:
         verbose_name_plural = 'Osebe'
@@ -38,7 +40,8 @@ class Film(models.Model):
     metascore = models.FloatField(help_text="Metascore tega filma od 1 do 100.", null=True)
     zasluzek = models.IntegerField(help_text="Zaslužek v USD.", null=True)
     opis = models.TextField(help_text="Opis filma.")
-    zanr = models.ManyToManyField(Zanr, help_text='Žanri tega filma')
+    zanr = models.ManyToManyField(Zanr, help_text='Žanri tega filma', related_name='filmi')
+    osebe = models.ManyToManyField(Oseba, through='Nastopanje', related_name='filmi')
 
     class Meta:
         verbose_name_plural = 'Filmi'
@@ -48,12 +51,20 @@ class Film(models.Model):
 
 
 class Nastopanje(models.Model):
-    film = models.ForeignKey(Film, on_delete=models.CASCADE)
-    oseba = models.ForeignKey(Oseba, on_delete=models.CASCADE)
-    vloga = models.ForeignKey(Vloga, on_delete=models.CASCADE)
+    film = models.ForeignKey(Film, on_delete=models.CASCADE, related_name='nastopanja')
+    oseba = models.ForeignKey(Oseba, on_delete=models.CASCADE, related_name='nastopanja')
+    vloga = models.ForeignKey(Vloga, on_delete=models.CASCADE, related_name='nastopanja')
 
     class Meta:
         verbose_name_plural = 'Nastopanja'
 
     def __str__(self):
         return "{} je v filmu '{}' imel vlogo '{}'.".format(self.oseba, self.film, self.vloga)
+
+
+class FilmForm(ModelForm):
+    class Meta:
+        model = Film
+        fields = [
+            'naslov', 'dolzina', 'leto', 
+            'zasluzek', 'opis', 'zanr', 'osebe',]

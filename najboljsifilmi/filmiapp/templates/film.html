@@ -4,10 +4,20 @@
 <h1>{{film.naslov}}</h1>
 
 <div class="metadata">
-<span class="leto">{{film.leto}}</span>
+<span>
+<span class="leto">{{film.leto}}</span>,
 <span class="dolzina">{{film.dolzina}} minut</span>
+</span>
+<span class="zanri">Zanri:
+    {{ film.zanr.all|join:", " }}
+</span>
+<span class="osebe">Osebe:
+    {% for o, v in osebe.items %}
+        {{o}} ({{v|join:", "}}){% if not forloop.last %},{% endif %}
+    {% endfor %}
+</span>
 </div>
 
-<p>{{film.opis}}</p>
+<p class="description">{{film.opis}}</p>
 
 {% endblock %}

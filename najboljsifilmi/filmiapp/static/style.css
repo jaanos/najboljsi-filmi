@@ -1,12 +1,23 @@
+.jumbotron {
+    margin-top: 20px;
+}
+
 footer {
     border-top: 1px solid #eee;
     padding-top: 10px;
     margin-top: 10px;
 }
 
-.metadata {
+.metadata > span {
+    display: block;
     background-color: #eee;
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 5px 15px;
+}
+
+.description {
+    margin: 20px 0px;
+    max-width: 500px;
+    font-size: 1.2rem;
 }
