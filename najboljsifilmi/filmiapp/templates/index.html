@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Top 10 najboljsih filmov vseh casov</h1>
+    <p class="lead">Baza vseh najboljsih filmov zadnjih let</p>
+    <hr class="my-4">
+    <ol>
+        {% for film in top %}
+            <li>{{film}} <a href="{% url 'film' film.pk %}">vec &raquo;</a></li>
+        {% endfor %}
+    </ol>
+    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+</div>
+
+{% endblock %}

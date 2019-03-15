@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{film.naslov}}</h1>
+
+<div class="metadata">
+<span class="leto">{{film.leto}}</span>
+<span class="dolzina">{{film.dolzina}} minut</span>
+</div>
+
+<p>{{film.opis}}</p>
+
+{% endblock %}
