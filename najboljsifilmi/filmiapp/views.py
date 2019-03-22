@@ -1,5 +1,6 @@
-from django.shortcuts import reverse, render, get_object_or_404
+from django.shortcuts import reverse, render, get_object_or_404, HttpResponseRedirect
 from filmiapp.models import Film, FilmForm
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     top = Film.objects.all().order_by('-ocena')[:10 ]
@@ -24,12 +25,13 @@ def film(request, id):
         'osebe': osebe,
     })
 
-
+@login_required
 def nov_film(request):
     if request.method == 'POST':
         form = FilmForm(request.POST)
         if form.is_valid():
-            return HttpResponseRedirect(reverse('index'))
+            film = form.save()
+            return HttpResponseRedirect(reverse('film', args=(film.pk,)))
     else:
         form = FilmForm()
 
